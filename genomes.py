@@ -88,3 +88,33 @@ def deBruijnAdjacency(Text, k):
     graph = dict(sorted(graph.items()))
     
     return graph
+
+'''
+Reconstructing the string requires finding a path through the de Bruijn graph
+which touches each edge exactly once. Called the Eulerian path.
+
+For this to be a viable solution, we need to be able to construct a de Bruijn
+graph without needing the full genome. Can do this from a composition graph.
+'''
+
+# Create a de Bruijn graph from a set of k-mers
+
+def deBruijn(Patterns):
+    graph = {}
+    for i in range(len(Patterns)):
+        if Patterns[i][:-1] not in graph:
+            graph[Patterns[i][:-1]] = [Patterns[i][1:]]
+        else:
+            graph[Patterns[i][:-1]].append(Patterns[i][1:])
+    
+    return graph
+
+'''
+The Hamiltonian method and the de Bruijn graph are different approaches to the 
+same problem: Every k-mer node once, or every k-mer edge once. With 2 different
+approaches, the one which provides the most efficient algorithm should be used
+
+de Bruijn graph approach can be solved with Eulerian algorithms.
+'''
+
+
