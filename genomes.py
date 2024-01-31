@@ -115,6 +115,21 @@ same problem: Every k-mer node once, or every k-mer edge once. With 2 different
 approaches, the one which provides the most efficient algorithm should be used
 
 de Bruijn graph approach can be solved with Eulerian algorithms.
+
+
+For a directed graph to be Eulerian:
+    It must be balanced (each node has the same indegree & outdegree)
+    It must be strongly connected (all nodes must be reachable from each other)
+
+Euler's Theorem states that any graphs meeting these criteria are Eulerian.
+
+It is impossible to get stuck in a cycle except at the starting node. The only 
+way to get stuck is to return to the start before visiting every node.
+
+Therefore: Complete a cycle. If it is not Eulerian, choose a node in cycle1 with
+unused edges entering & leaving - complete cycle 1 and travel on unused edges
+for cycle 2. If still not Eulerian, iterate until full cycle found.
 '''
 
-
+def EulerianCycle(graph):
+    
