@@ -38,11 +38,25 @@ def StringSpelledByPath(Path):
         genome = genome + Path[i][n-1]
     return genome
 
-genome_path = open("genome_path.txt", 'r')
-Path_raw = genome_path.read()
-Path = Path_raw.split(' ')
+'''
+To apply this to an unordered collection of reads, we need to use graph theory.
+Graph nodes and directional edges can be represented as a dictionary of lists
+with the entry for each node containing a list of all out-connected nodes
+'''
 
-String = StringSpelledByPath(Path)
-genome_path.close()
+# Directional graph connecting overlapping k-1 suffixes to prefixes
 
-print(String)
+def OverlapGraph(Dna):
+    graph = {}
+    
+    for i in Dna:
+        for j in range(len(Dna)):
+            if i[1:] == Dna[j][:-1]:
+                if i not in graph:
+                    graph[i] = []
+                graph[i].append(Dna[j])
+    
+    graph = dict(sorted(graph.items()))
+
+    return graph
+
