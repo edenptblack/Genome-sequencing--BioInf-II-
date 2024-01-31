@@ -70,10 +70,21 @@ To reconstruct a string, we need to find a Hamiltonian path, ie a path which
 goes through every node exactly 1 time
 '''
 
-# Create a de Bruijn graph by gluing together identical overlap nodes
+# Create a de Bruijn graph by gluing together identical overlap nodes (adjacency list form)
 
-def deBruijn(Text, k):
+def deBruijnAdjacency(Text, k):
     nodes = StringComposition(Text, k-1)
-    print(nodes)
-    graph = OverlapGraph(nodes)
+    graph = {}
+    
+    for i in range(len(nodes)):
+        if i + 1 >= len(nodes):  # Adjust the condition to avoid index out of range
+            break
+        elif nodes[i] not in graph:
+            graph[nodes[i]] = []
+            graph[nodes[i]].append(nodes[i + 1])
+        elif nodes[i] in graph:
+            graph[nodes[i]].append(nodes[i + 1])
+    
+    graph = dict(sorted(graph.items()))
+    
     return graph
