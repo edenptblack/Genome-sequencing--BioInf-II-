@@ -50,13 +50,30 @@ def OverlapGraph(Dna):
     graph = {}
     
     for i in Dna:
-        for j in range(len(Dna)):
-            if i[1:] == Dna[j][:-1]:
-                if i not in graph:
-                    graph[i] = []
-                graph[i].append(Dna[j])
+        if i in graph:
+            pass
+        else:
+            for j in range(len(Dna)):
+                if i[1:] == Dna[j][:-1]:
+                    if i not in graph:
+                        graph[i] = []
+                    graph[i].append(Dna[j])
     
     graph = dict(sorted(graph.items()))
 
     return graph
 
+'''
+The k-mers are now edges, with nodes representing the overlaps
+
+To reconstruct a string, we need to find a Hamiltonian path, ie a path which
+goes through every node exactly 1 time
+'''
+
+# Create a de Bruijn graph by gluing together identical overlap nodes
+
+def deBruijn(Text, k):
+    nodes = StringComposition(Text, k-1)
+    print(nodes)
+    graph = OverlapGraph(nodes)
+    return graph
