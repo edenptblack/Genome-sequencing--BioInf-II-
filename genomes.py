@@ -136,7 +136,7 @@ for cycle 2. If still not Eulerian, iterate until full cycle found.
 import random
 
 
-def EulerianCycle(graph):
+def EulerianCycleNonLinear(graph):
     cycle = []
     path_travelled = {key:[] for key in graph}
     
@@ -144,16 +144,13 @@ def EulerianCycle(graph):
     cycle.append(node)
     
     while not all(item in cycle for item in graph.keys()):
-        print("Loop starting")
+        print("New loop")
         
         if len(path_travelled[node]) == 0:
             next_steps = graph[node]
         else:
             next_steps = [item for item in graph[node] if item not in path_travelled[node]]
         
-        print("cycle: " + str(cycle))
-        print("next steps: " + str(next_steps))
-        print("path travelled: " + str(path_travelled))
         
         if len(next_steps) > 0:
             next_node = random.choice(next_steps)
@@ -167,13 +164,35 @@ def EulerianCycle(graph):
                 if item != node:
                     if not all(item in graph[node] for item in cycle):
                         new_starts.append(item)
-            
-            print("new starts: " + str(new_starts))
+            print("NEW CYCLE")
             cycle = []
             path_travelled = {key:[] for key in graph}
             node = random.choice(new_starts)
          
         cycle.append(node)    
          
+    return cycle
+
+def EulerianCycle(graph):
+    def dfs(node):
+        while graph[node]:
+            next_node = graph[node].pop()
+            dfs(next_node)
+        cycle.append(node)
+
+    cycle = []
+    stack = [random.choice(list(graph.keys()))]
+
+    while stack:
+        current_node = stack[-1]
+        if graph[current_node]:
+            next_node = graph[current_node].pop()
+            stack.append(next_node)
+        else:
+            cycle.append(stack.pop())
+
+    # Reverse the cycle to get the correct order
+    cycle.reverse()
+
     return cycle
         
