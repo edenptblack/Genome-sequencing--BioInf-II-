@@ -131,5 +131,49 @@ unused edges entering & leaving - complete cycle 1 and travel on unused edges
 for cycle 2. If still not Eulerian, iterate until full cycle found.
 '''
 
+# Find the Eulerian cycle of a graph from a dictionary of nodes & edges
+
+import random
+
+
 def EulerianCycle(graph):
+    cycle = []
+    path_travelled = {key:[] for key in graph}
     
+    node = random.choice(list(graph.keys()))
+    cycle.append(node)
+    
+    while not all(item in cycle for item in graph.keys()):
+        print("Loop starting")
+        
+        if len(path_travelled[node]) == 0:
+            next_steps = graph[node]
+        else:
+            next_steps = [item for item in graph[node] if item not in path_travelled[node]]
+        
+        print("cycle: " + str(cycle))
+        print("next steps: " + str(next_steps))
+        print("path travelled: " + str(path_travelled))
+        
+        if len(next_steps) > 0:
+            next_node = random.choice(next_steps)
+            path_travelled[node].append(next_node)
+            node = next_node
+        
+        else:
+            new_starts = []
+            
+            for item in cycle:
+                if item != node:
+                    if not all(item in graph[node] for item in cycle):
+                        new_starts.append(item)
+            
+            print("new starts: " + str(new_starts))
+            cycle = []
+            path_travelled = {key:[] for key in graph}
+            node = random.choice(new_starts)
+         
+        cycle.append(node)    
+         
+    return cycle
+        
