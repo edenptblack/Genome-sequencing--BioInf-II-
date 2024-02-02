@@ -131,55 +131,18 @@ unused edges entering & leaving - complete cycle 1 and travel on unused edges
 for cycle 2. If still not Eulerian, iterate until full cycle found.
 '''
 
-# Find the Eulerian cycle of a graph from a dictionary of nodes & edges
+# Find the Eulerian cycle of a graph from a dictionary of nodes & edges - Hierholzer's algorithm
 
 import random
 
-
-def EulerianCycleNonLinear(graph):
-    cycle = []
-    path_travelled = {key:[] for key in graph}
-    
-    node = random.choice(list(graph.keys()))
-    cycle.append(node)
-    
-    while not all(item in cycle for item in graph.keys()):
-        print("New loop")
-        
-        if len(path_travelled[node]) == 0:
-            next_steps = graph[node]
-        else:
-            next_steps = [item for item in graph[node] if item not in path_travelled[node]]
-        
-        
-        if len(next_steps) > 0:
-            next_node = random.choice(next_steps)
-            path_travelled[node].append(next_node)
-            node = next_node
-        
-        else:
-            new_starts = []
-            
-            for item in cycle:
-                if item != node:
-                    if not all(item in graph[node] for item in cycle):
-                        new_starts.append(item)
-            print("NEW CYCLE")
-            cycle = []
-            path_travelled = {key:[] for key in graph}
-            node = random.choice(new_starts)
-         
-        cycle.append(node)    
-         
-    return cycle
-
 def EulerianCycle(graph):
+    
     def dfs(node):
         while graph[node]:
             next_node = graph[node].pop()
             dfs(next_node)
         cycle.append(node)
-
+      
     cycle = []
     stack = [random.choice(list(graph.keys()))]
 
@@ -195,4 +158,57 @@ def EulerianCycle(graph):
     cycle.reverse()
 
     return cycle
-        
+
+# Find Eulerian path
+
+def EulerianPath(graph):
+    
+    def find_starting_node():
+        # Find the starting node with out-degree greater than in-degree
+        for node in graph:
+            in_degree = sum(1 for _, neighbors in graph.items() if node in neighbors)
+            out_degree = len(graph[node])
+            if out_degree > in_degree:
+                return node
+        return None
+
+    def dfs(node):
+        while graph[node]:
+            next_node = graph[node].pop()
+            dfs(next_node)
+        cycle.append(node)
+      
+    cycle = []
+    starting_node = find_starting_node()
+
+    if starting_node is not None:
+        stack = [starting_node]
+    else:
+        # If no starting node found, graph is not Eulerian
+        return None
+
+    while stack:
+        current_node = stack[-1]
+        if graph[current_node]:
+            next_node = graph[current_node].pop()
+            stack.append(next_node)
+        else:
+            cycle.append(stack.pop())
+
+    # Reverse the cycle to get the correct order
+    cycle.reverse()
+
+    return cycle
+
+'''
+Can now reconstruct strings by constructing a de Bruijn graph, finding the 
+Eulerian path through it, and constructing the string spelled by the path
+'''
+
+def StringReconstruction(Patterns):
+    dB = deBruijn(Patterns)
+    path = EulerianPath(dB)
+    text = StringSpelledByPath(path)
+    
+    return text
+
