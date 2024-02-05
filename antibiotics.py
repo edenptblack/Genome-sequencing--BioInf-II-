@@ -7,10 +7,10 @@ Created on Fri Feb  2 16:08:48 2024
 
 # Create a genetic code dictionary
 
-file_path = 'genetic_code.txt'
+file_path = 'genetic_code_rna.txt'
 
 # Initialize an empty dictionary
-genetic_code = {}
+genetic_code_rna = {}
 
 # Read the file and populate the dictionary
 with open(file_path, 'r') as file:
@@ -18,18 +18,34 @@ with open(file_path, 'r') as file:
         # Split each line into codon and amino acid
         codon, amino_acid = line.strip().split(' : ')
         # Add the entry to the dictionary
-        genetic_code[codon] = amino_acid
+        genetic_code_rna[codon] = amino_acid
 
 # A function to translate genetic code into an amino acid sequence
+
+file_path = 'genetic_code_dna.txt'
+
+# Initialize an empty dictionary
+genetic_code_dna = {}
+
+# Read the file and populate the dictionary
+with open(file_path, 'r') as file:
+    for line in file:
+        # Split each line into codon and amino acid
+        codon, amino_acid = line.strip().split(' : ')
+        # Add the entry to the dictionary
+        genetic_code_dna[codon] = amino_acid
 
 def ProteinTranslation(seq):
     amino_acids = []
     
     for i in range(0,len(seq),3):
-        if genetic_code[seq[i:i+3]] == '*':
+        if len(seq) < i+2:
+            print("No stop codon")
+            break
+        elif genetic_code_rna[seq[i:i+3]] == '*':
             break
         else:
-            amino_acids.append(genetic_code[seq[i:i+3]])
+            amino_acids.append(genetic_code_rna[seq[i:i+3]])
     
     amino_acid_string = ''.join(amino_acids)
     
@@ -73,8 +89,40 @@ def ReverseComplement(Pattern):
 
 def PeptideEncoding(dna, peptide):
     rc_dna = ReverseComplement(dna)
+    encoding_patterns = []
     
-    def PeptideSearch(text, peptide):
-        n = len(peptide)
+    def PeptideSearch(frame, peptide, reverse):
+        n = len(peptide) * 3
+        if reverse:
+            frame = ReverseComplement(frame)
         
-        # Need to account for likely error from lack of stop codon!
+        for i in range(0, len(frame) - n + 1):
+            peptide_check = frame[i:i+n]
+            test_peptide = []
+            
+            for j in range(0, len(peptide_check) - 2, 3):
+                test_peptide.append(genetic_code_dna[peptide_check[j:j+3]])
+            
+            test_peptide = ''.join(test_peptide)
+            if test_peptide == peptide:
+                if reverse:
+                    encoding_patterns.append(ReverseComplement(frame[i:i+n]))
+                else:
+                    encoding_patterns.append(frame[i:i+n])
+
+    
+    for i in range(3):
+        frame = dna[i:len(dna)]
+        PeptideSearch(frame, peptide, reverse = False)
+    
+    for i in range(3):
+        frame = rc_dna[i:len(rc_dna)]
+        PeptideSearch(frame, peptide, reverse = True)
+        
+    encoding_patterns = list(set(encoding_patterns))
+
+    return encoding_patterns
+
+
+
+' '.join(map(str, PeptideEncoding('ATGGCCATGGCCCCCAGAACTGAGATCAATAGTACCCGTATTAACGGGTGA', 'MA')))
