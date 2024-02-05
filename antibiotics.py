@@ -7,10 +7,10 @@ Created on Fri Feb  2 16:08:48 2024
 
 # Create a genetic code dictionary
 
-file_path = 'genetic_code.txt'
+file_path = 'genetic_code_rna.txt'
 
 # Initialize an empty dictionary
-genetic_code = {}
+genetic_code_rna = {}
 
 # Read the file and populate the dictionary
 with open(file_path, 'r') as file:
@@ -18,18 +18,34 @@ with open(file_path, 'r') as file:
         # Split each line into codon and amino acid
         codon, amino_acid = line.strip().split(' : ')
         # Add the entry to the dictionary
-        genetic_code[codon] = amino_acid
+        genetic_code_rna[codon] = amino_acid
 
 # A function to translate genetic code into an amino acid sequence
+
+file_path = 'genetic_code_dna.txt'
+
+# Initialize an empty dictionary
+genetic_code_dna = {}
+
+# Read the file and populate the dictionary
+with open(file_path, 'r') as file:
+    for line in file:
+        # Split each line into codon and amino acid
+        codon, amino_acid = line.strip().split(' : ')
+        # Add the entry to the dictionary
+        genetic_code_dna[codon] = amino_acid
 
 def ProteinTranslation(seq):
     amino_acids = []
     
     for i in range(0,len(seq),3):
-        if genetic_code[seq[i:i+3]] == '*':
+        if len(seq[i:i+3]) < 3:
+            print("No stop codon")
+            break
+        elif genetic_code_rna[seq[i:i+3]] == '*':
             break
         else:
-            amino_acids.append(genetic_code[seq[i:i+3]])
+            amino_acids.append(genetic_code_rna[seq[i:i+3]])
     
     amino_acid_string = ''.join(amino_acids)
     
@@ -71,10 +87,47 @@ def ReverseComplement(Pattern):
 
 # A function to find all instances of a peptide being encoded by a string of DNA
 
-def PeptideEncoding(dna, peptide):
-    rc_dna = ReverseComplement(dna)
+def DnaProteinTranslation(seq):
+    amino_acids = []
     
-    def PeptideSearch(text, peptide):
-        n = len(peptide)
+    for i in range(0,len(seq),3):
+        if len(seq[i:i+3]) < 3:
+            print("No stop codon")
+            break
+        elif genetic_code_dna[seq[i:i+3]] == '*':
+            break
+        else:
+            amino_acids.append(genetic_code_dna[seq[i:i+3]])
+    
+    amino_acid_string = ''.join(amino_acids)
+    
+    return amino_acid_string
+
+
+def PeptideEncoding(dna, peptide):
+    encoding_patterns = []
+    n = len(peptide) * 3
+    
+    for i in range(len(dna)):
+        frame = dna[i:i+n]        
+        test_peptide = DnaProteinTranslation(frame)
         
-        # Need to account for likely error from lack of stop codon!
+        if test_peptide == peptide:
+            encoding_patterns.append(frame)
+        
+        rc_frame = ReverseComplement(dna[i:i+n])
+        rc_test_peptide = DnaProteinTranslation(rc_frame)
+        
+        if rc_test_peptide == peptide:
+            encoding_patterns.append(frame)
+
+    return encoding_patterns
+
+
+'''
+Some peptides are cyclic, meaning we need to search the genome for the linear
+version of every possible starting point on the circle.
+
+In bacillus, tyrocidines & gramicidins are non-ribosomal peptides - rather
+than being DNA encoded they are assembled amino acid by acid by NRP synthetase.
+'''
