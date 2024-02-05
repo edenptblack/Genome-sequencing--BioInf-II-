@@ -39,7 +39,7 @@ def ProteinTranslation(seq):
     amino_acids = []
     
     for i in range(0,len(seq),3):
-        if len(seq) < i+2:
+        if len(seq[i:i+3]) < 3:
             print("No stop codon")
             break
         elif genetic_code_rna[seq[i:i+3]] == '*':
@@ -87,42 +87,47 @@ def ReverseComplement(Pattern):
 
 # A function to find all instances of a peptide being encoded by a string of DNA
 
-def PeptideEncoding(dna, peptide):
-    rc_dna = ReverseComplement(dna)
-    encoding_patterns = []
+def DnaProteinTranslation(seq):
+    amino_acids = []
     
-    def PeptideSearch(frame, peptide, reverse):
-        n = len(peptide) * 3
-        if reverse:
-            frame = ReverseComplement(frame)
-        
-        for i in range(0, len(frame) - n + 1):
-            peptide_check = frame[i:i+n]
-            test_peptide = []
-            
-            for j in range(0, len(peptide_check) - 2, 3):
-                test_peptide.append(genetic_code_dna[peptide_check[j:j+3]])
-            
-            test_peptide = ''.join(test_peptide)
-            if test_peptide == peptide:
-                if reverse:
-                    encoding_patterns.append(ReverseComplement(frame[i:i+n]))
-                else:
-                    encoding_patterns.append(frame[i:i+n])
+    for i in range(0,len(seq),3):
+        if len(seq[i:i+3]) < 3:
+            print("No stop codon")
+            break
+        elif genetic_code_dna[seq[i:i+3]] == '*':
+            break
+        else:
+            amino_acids.append(genetic_code_dna[seq[i:i+3]])
+    
+    amino_acid_string = ''.join(amino_acids)
+    
+    return amino_acid_string
 
+
+def PeptideEncoding(dna, peptide):
+    encoding_patterns = []
+    n = len(peptide) * 3
     
-    for i in range(3):
-        frame = dna[i:len(dna)]
-        PeptideSearch(frame, peptide, reverse = False)
-    
-    for i in range(3):
-        frame = rc_dna[i:len(rc_dna)]
-        PeptideSearch(frame, peptide, reverse = True)
+    for i in range(len(dna)):
+        frame = dna[i:i+n]        
+        test_peptide = DnaProteinTranslation(frame)
         
-    encoding_patterns = list(set(encoding_patterns))
+        if test_peptide == peptide:
+            encoding_patterns.append(frame)
+        
+        rc_frame = ReverseComplement(dna[i:i+n])
+        rc_test_peptide = DnaProteinTranslation(rc_frame)
+        
+        if rc_test_peptide == peptide:
+            encoding_patterns.append(frame)
 
     return encoding_patterns
 
 
+'''
+Some peptides are cyclic, meaning we need to search the genome for the linear
+version of every possible starting point on the circle.
 
-' '.join(map(str, PeptideEncoding('ATGGCCATGGCCCCCAGAACTGAGATCAATAGTACCCGTATTAACGGGTGA', 'MA')))
+In bacillus, tyrocidines & gramicidins are non-ribosomal peptides - rather
+than being DNA encoded they are assembled amino acid by acid by NRP synthetase.
+'''
