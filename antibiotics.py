@@ -130,4 +130,58 @@ version of every possible starting point on the circle.
 
 In bacillus, tyrocidines & gramicidins are non-ribosomal peptides - rather
 than being DNA encoded they are assembled amino acid by acid by NRP synthetase.
+Therefore we can't infer them from the genome.
+
+Mass spectrometry allows us to identify peptides via their molecular weight in
+Daltons, where 1Da is approximately the weight of one proton/neutron. Each
+amino acid has a known weight, and we therefore know the weight of peptides.
+
+Mass spectrometry works by breaking peptides into fragments, with each copy
+breaking it's own way. We need to be able to identify peptides from the
+resulting experimental spectrum.
+
+To start, we will assume that a cyclic peptide will be split at every possible
+2 bonds, so the spectrum contains all possible subpeptides. The theoretical
+spectrum of a peptide is an ordered list of the masses of all possible
+subpeptides, starting at 0 and ending at the mass of the whole peptide.
 '''
+
+# Dictionary of amino acid masses
+
+file_path = 'integer_mass_table.txt'
+
+mass_table = {}
+
+with open(file_path, 'r') as file:
+    for line in file:
+
+        amino_acid, mass = line.strip().split(' ')
+        # Add the entry to the dictionary
+        mass_table[amino_acid] = mass
+
+print(mass_table['N'])
+
+# Generating the theoretical spectrum of a linear peptide
+
+def LinearSpectrum(peptide):
+    PrefixMass = [0]
+    
+    for i in range(0, len(peptide)):
+        PrefixMass.append(PrefixMass[i] + int(mass_table[peptide[i]]))
+    
+    linear_spectrum = [0]
+    
+    for i in range(len(peptide) - 1):
+        for j in range(i+1:len(peptide)):
+            linear_spectrum.append(PrefixMass[j] - PrefixMass[i])
+    
+    linear_spectrum.sort()      
+    
+    return linear_spectrum
+
+
+peptide = 'NQEL'    
+
+LinearSpectrum(peptide)
+
+        
